@@ -136,4 +136,21 @@ public String longestPalindrome(String s) {
         }
         return s.substring(index, index + maxLen);
     }
+    // public String longestPalindrome(String s) {
+    //     int len = s.length();
+    //     if (len < 2) return s;
+    //     char[] arr = s.toCharArray();
+    //     boolean[][] flag = new boolean[len][len];
+    //     int left = 0, right = 0;
+    //     for (int i = len - 1; i >= 0; i--) {
+    //         for (int j = i; j < len; j++) {
+    //             if (arr[i] == arr[j] && ((j - i < 3) || flag[i + 1][j - 1])) flag[i][j] = true;
+    //             if (flag[i][j] && j - i > right - left) {
+    //                 right = j;
+    //                 left = i;
+    //             }
+    //         }
+    //     }
+    //     return s.substring(left, right + 1);
+    // }
 ```
