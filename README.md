@@ -1,10 +1,136 @@
-# 求数组中和等于目标值的两个数的索引下标
-
+# 1.求数组中和等于目标值的两个数的索引下标
 1. 对数组排序
 2. 利用类二分查找算法，查找符合条件的两个数
+```
+   public int[] twoSum(int[] nums, int target) {
+        int[] sortNums = Arrays.copyOf(nums, nums.length);
+        Arrays.sort(sortNums);
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int sum = sortNums[left] + sortNums[right];
+            if (sum == target) {
+                int i = helper(nums, sortNums[left], -1);
+                int j = helper(nums, sortNums[right], i);
+                if (i > j) {
+                    int tmp = i;
+                    i = j;
+                    j = tmp;
+                }
+                return new int[]{i, j};
+            }
+            else if (sum > target) right--;
+            else left++;
+        }
+    return new int[2];
+    }
+    private int helper(int[] nums, int target, int index) {
+        for (int i = 0, len = nums.length; i < len; i++) {
+            if (i == index) continue;
+            if (nums[i] == target) return i;
+        }
+        return -1;
+    }
+```
 
-
-# 将两个单向链接的链连接到一起，对应值相加
-
+# 2.将两个单向连接的链连接到一起，对应值相加
 1. 构建新头
 2. 只要两个链非空或进位不为0，继续循环构建新节点，值为两个链对应值和进位的和
+```
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode head = new ListNode(0), cur = head;
+        int sum = 0;
+        while (l1 != null || l2 != null || sum != 0) {
+            if (l1 != null) {
+                sum += l1.val;
+                l1 = l1.next;
+            }
+            if (l2 != null) {
+                sum += l2.val;
+                l2 = l2.next;
+            }
+            cur.next = new ListNode(sum % 10);
+            cur = cur.next;
+            sum /= 10;
+        }
+        return head.next;
+    }
+```
+
+# 3.最长没有重复值的字串的长度
+1. 构建数组存放字符出现情况
+2. 双指针索引，如果右指针指向的元素出现超过一次，移动左指针指到右指针指向的元素出现只有一次
+3. 如果字串长度超过最大值，更新最大值
+```
+    public int lengthOfLongestSubstring(String s) {
+        int len = s.length();
+        if (len < 2) return len;
+        int[] count = new int[256];
+        char[] chs = s.toCharArray();
+        int res = 1;
+        count[chs[0]] = 1;
+        for (int left = 0, right = 1; right < len; right++) {
+            count[chs[right]]++;
+            while (count[chs[right]] > 1) {
+                count[chs[left]]--;
+                left++;
+            }
+            if (right - left + 1 > res) res = right - left + 1;
+        }
+        return res;
+    }
+```
+
+# 4.求两个已排序数组的中值
+1. 如果两个数组数量为偶数个，则中值为第p个和第p+1个值的中点；否则中值为第p个的值
+2. 构建函数查找第p个的值，分别保存数组的当前索引
+3. 如果数组1的当前索引超过数组1的长度，返回数组2的值；如果数组2的当前索引超过数组2的长度，返回数组1的值
+4. 如果查找第一个值，返回数组1和数组2的最小值
+5. 比较两个数组当前索引+p/2的值，对值更小的数组索引前进p/2，迭代函数
+```
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int len1 = nums1.length, len2 = nums2.length;
+        if (((len1 + len2) & 1) == 1) return (double)helper(nums1, 0, nums2, 0, (len1 + len2) / 2 + 1);
+        return (helper(nums1, 0, nums2, 0, (len1 + len2) / 2) + helper(nums1, 0, nums2, 0, (len1 + len2) / 2 + 1)) / 2.0;
+    }
+    private int helper(int[] nums1, int index1, int[] nums2, int index2, int p) {
+        if (index1 >= nums1.length) return nums2[index2 + p - 1];
+        if (index2 >= nums2.length) return nums1[index1 + p - 1];
+        if (p == 1) return Math.min(nums1[index1], nums2[index2]);
+        int mid1 = index1 + p / 2 - 1, mid2 = index2 + p / 2 - 1;
+        int val1 = mid1 >= nums1.length ? Integer.MAX_VALUE : nums1[mid1];
+        int val2 = mid2 >= nums2.length ? Integer.MAX_VALUE : nums2[mid2];
+        if (val1 >= val2) return helper(nums1, index1, nums2, mid2 + 1, p - p / 2);
+        return helper(nums1, mid1 + 1, nums2, index2, p - p / 2);
+    }
+```
+
+# 5. 最长回文子串
+1. 循环遍历字符串的每一个字符
+2. 以当前字符为中心，向两边扩增回文字串，直到两端字符不同
+3. 如果子串长度大于最大值，更新最大子串
+p.s. 动态规划：
+状态：i到j之间的子串是否是回文字符串
+递归方程：如果第i个字符和第j个字符相同，且i+1到j-1之间的子串是回文字符串，那么i到j之间的子串就是回文字符串；否则，不是
+```
+public String longestPalindrome(String s) {
+        int len = s.length();
+        if (len < 2) return s;
+        char[] arr = s.toCharArray();
+        int index = 0, maxLen = 0;
+        for (int i = 0; i < len; ) {
+            int right = i + 1;
+            while (right < len && arr[i] == arr[right]) right++;
+            int left = i - 1;
+            i = right;
+            while (left >= 0 && right < len && arr[left] == arr[right]) {
+                left--;
+                right++;
+            }
+            if (right - left - 1 > maxLen) {
+                maxLen = right - left - 1;
+                index = left + 1;
+            }
+        }
+        return s.substring(index, index + maxLen);
+    }
+```
